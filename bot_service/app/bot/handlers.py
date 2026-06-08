@@ -1,7 +1,6 @@
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
-import asyncio
 
 from app.core.jwt import decode_and_validate
 from app.infra.redis import get_redis
@@ -37,8 +36,6 @@ async def cmd_token(message: Message) -> None:
     await message.answer("Токен сохранён. Теперь вы можете отправлять запросы к LLM.")
 
 
-
-
 @router.message()
 async def handle_text(message: Message) -> None:
     if not message.text:
@@ -70,16 +67,3 @@ async def handle_text(message: Message) -> None:
 
     llm_request.delay(tg_chat_id=message.chat.id, prompt=message.text)
     await message.answer("Запрос принят, обрабатываю...")
-
-    # Ждём результат из Redis
-    for _ in range(30):
-        await asyncio.sleep(2)
-        result = await redis.get(f"llm_result:{message.chat.id}")
-        if result:
-            if isinstance(result, bytes):
-                result = result.decode()
-            await redis.delete(f"llm_result:{message.chat.id}")
-            await message.answer(result)
-            return
-
-    await message.answer("Превышено время ожидания. Попробуйте ещё раз.")
