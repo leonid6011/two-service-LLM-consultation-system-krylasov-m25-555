@@ -96,7 +96,7 @@ email: `student_krylasov@email.com`
 
 ![login](docs/login.png)
 
-3. Профиль - POST /auth/me
+3. Профиль - GET /auth/me
 
 ![me](docs/me.png)
 
